@@ -9,7 +9,6 @@ MVVM Architecture
 - Navigation Compose
 - Room
 - Coil
-- ViewModel
 - Coroutines
 
 ## Output
