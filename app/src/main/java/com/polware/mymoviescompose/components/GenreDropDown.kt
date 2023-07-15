@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -27,7 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.polware.mymoviescompose.data.model.Genre
 
@@ -40,10 +42,16 @@ fun GenreDropDown(
     val angle:Float by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f
     )
+    var parentSize by remember {
+        mutableStateOf(IntSize.Zero)
+    }
 
     Row(
         modifier = Modifier
             .width(120.dp)
+            .onGloballyPositioned {
+                parentSize = it.size
+            }
             .background(MaterialTheme.colors.background)
             .height(40.dp)
             .clickable(onClick = { expanded = true })
@@ -78,105 +86,22 @@ fun GenreDropDown(
 
         DropdownMenu(
             modifier = Modifier
-                .fillMaxWidth(fraction = 0.3f),
+                .width(with(LocalDensity.current) {
+                    parentSize.width.toDp()
+                }),
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.ACTION)
+            Genre.values().slice(0..11).forEach {
+                genreName ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        onGenreSelected(genreName)
+                    }
+                ) {
+                    GenreItem(genre = genreName)
                 }
-            ) {
-                GenreItem(genre = Genre.ACTION)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.ADVENTURE)
-                }
-            ) {
-                GenreItem(genre = Genre.ADVENTURE)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.ANIMATION)
-                }
-            ) {
-                GenreItem(genre = Genre.ANIMATION)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.BIOGRAPHY)
-                }
-            ) {
-                GenreItem(genre = Genre.BIOGRAPHY)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.COMEDY)
-                }
-            ) {
-                GenreItem(genre = Genre.COMEDY)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.CRIME)
-                }
-            ) {
-                GenreItem(genre = Genre.CRIME)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.DRAMA)
-                }
-            ) {
-                GenreItem(genre = Genre.DRAMA)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.FANTASY)
-                }
-            ) {
-                GenreItem(genre = Genre.FANTASY)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.HORROR)
-                }
-            ) {
-                GenreItem(genre = Genre.HORROR)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.SCIFI)
-                }
-            ) {
-                GenreItem(genre = Genre.SCIFI)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.SPORTS)
-                }
-            ) {
-                GenreItem(genre = Genre.SPORTS)
-            }
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onGenreSelected(Genre.THRILLER)
-                }
-            ) {
-                GenreItem(genre = Genre.THRILLER)
             }
         }
     }
