@@ -39,17 +39,17 @@ fun MovieScreen(
         }
     ) {
         MovieDetails(
-            title = movieViewModel.title.value,
+            title = movieViewModel.title,
             onTitleChange = movieViewModel::onTitleChange,
-            description = movieViewModel.description.value,
+            description = movieViewModel.description,
             onDescriptionChange = movieViewModel::onDescriptionChange,
-            genre = movieViewModel.genre.value,
+            genre = movieViewModel.genre,
             onGenreSelected = {
                 movieViewModel.onGenreSelected(it)
             },
-            year = movieViewModel.year.value,
+            year = movieViewModel.year,
             onYearChange = movieViewModel::onYearChange,
-            score = movieViewModel.score.value,
+            score = movieViewModel.score,
             onScoreChange = movieViewModel::onScoreChange
         )
     }

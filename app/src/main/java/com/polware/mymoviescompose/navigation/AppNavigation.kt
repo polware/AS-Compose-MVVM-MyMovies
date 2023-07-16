@@ -77,7 +77,7 @@ fun AppNavigation(
             LaunchedEffect(key1 = myAction) {
                 if (actionArg != myAction) {
                     myAction = actionArg
-                    changeAction(myAction)  // sharedViewModel.action.value = myAction
+                    changeAction(myAction)
                 }
             }
             MainListScreen(

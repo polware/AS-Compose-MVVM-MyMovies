@@ -1,7 +1,8 @@
 package com.polware.mymoviescompose.ui
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.polware.mymoviescompose.data.model.Genre
@@ -20,110 +21,42 @@ import javax.inject.Inject
 @HiltViewModel
 class MovieViewModel @Inject constructor(private val repository: MovieRepository,): ViewModel() {
 
-    val action: MutableState<Action> = mutableStateOf(Action.NO_ACTION)
-
-    fun changeAction(newAction: Action) {
-        action.value = newAction
-    }
-
     private val _allMovies = MutableStateFlow<RequestState<List<MovieModel>>>(RequestState.Idle)
     val allMovies: StateFlow<RequestState<List<MovieModel>>> = _allMovies
 
-    // States
-    val id: MutableState<Int> = mutableStateOf(0)
-    val title: MutableState<String> = mutableStateOf("")
-    val description: MutableState<String> = mutableStateOf("")
-    val genre: MutableState<Genre> = mutableStateOf((Genre.ACTION))
-    val year: MutableState<String> = mutableStateOf("")
-    val score: MutableState<Int> = mutableStateOf(0)
-
-    init {
-        getAllMovies()
-    }
+    private val _selectedMovie: MutableStateFlow<MovieModel?> = MutableStateFlow(null)
+    val selectMovie: StateFlow<MovieModel?> = _selectedMovie
 
     private val _searchedMovies = MutableStateFlow<RequestState<List<MovieModel>>>(RequestState.Idle)
     val searchedMovies: StateFlow<RequestState<List<MovieModel>>> = _searchedMovies
 
-    fun searchDatabase(searchQuery: String) {
-        _searchedMovies.value = RequestState.Loading
-        try {
-            viewModelScope.launch {
-                // Finds any values that have searchQuery in any position (SQL)
-                repository.searchDatabase(searchQuery = "%$searchQuery%")
-                    .collect { searchedTasks ->
-                        _searchedMovies.value = RequestState.Success(searchedTasks)
-                    }
-            }
-        } catch (e: Exception) {
-            _searchedMovies.value = RequestState.Error(e)
-        }
-        searchAppBarState.value = SearchAppBarState.TRIGGERED
-    }
+    var action by mutableStateOf(Action.NO_ACTION)
+        private set
 
     // State: searchAppBarState
-    var searchAppBarState: MutableState<SearchAppBarState> =
-        mutableStateOf(SearchAppBarState.CLOSED)
+    var searchAppBarState by mutableStateOf(SearchAppBarState.CLOSED)
         private set
 
     // State: searchTextState
-    var searchTextState: MutableState<String> = mutableStateOf("")
+    var searchTextState by mutableStateOf("")
         private set
 
-    // onSearchClicked is an event we're defining that the UI can invoke
-    // event: onSearchClicked
-    fun onSearchClicked(newSearchAppBarState: SearchAppBarState) {
-        searchAppBarState.value = newSearchAppBarState
-    }
+    // States
+    var id by mutableStateOf(0)
+        private set
+    var title by mutableStateOf("")
+        private set
+    var description by mutableStateOf("")
+        private set
+    var genre by mutableStateOf((Genre.ACTION))
+        private set
+    var year by mutableStateOf("")
+        private set
+    var score by mutableStateOf(0)
+        private set
 
-    // event: onSearchTextChanged
-    fun onSearchTextChanged(newText: String) {
-        searchTextState.value = newText
-    }
-
-    // Events for fields:
-    fun onTitleChange(newTitle: String) {
-        // limit characters
-        if (newTitle.length < 40) {
-            title.value = newTitle
-        }
-    }
-
-    fun onDescriptionChange(newDescription: String) {
-        description.value = newDescription
-    }
-
-    fun onGenreSelected(newGenre: Genre) {
-        genre.value = newGenre
-    }
-
-    fun onYearChange(newYear: String) {
-        year.value = newYear
-    }
-
-    fun onScoreChange(newScore: Int) {
-        score.value = newScore
-    }
-
-    fun updateMovieFields(selectedMovie: MovieModel?) {
-        if (selectedMovie != null) {
-            id.value = selectedMovie.id
-            title.value = selectedMovie.title
-            genre.value = selectedMovie.genre
-            year.value = selectedMovie.year
-            description.value = selectedMovie.description
-            score.value = selectedMovie.score
-        } else {
-            id.value = 0
-            title.value = ""
-            description.value = ""
-            genre.value =Genre.ACTION
-            year.value = ""
-            score.value = 0
-        }
-    }
-
-    fun validateFields(): Boolean {
-        return title.value.isNotEmpty() && year.value.isNotEmpty() && description.value.isNotEmpty()
+    init {
+        getAllMovies()
     }
 
     private fun getAllMovies() {
@@ -140,9 +73,6 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
         }
     }
 
-    private val _selectedMovie: MutableStateFlow<MovieModel?> = MutableStateFlow(null)
-    val selectMovie: StateFlow<MovieModel?> = _selectedMovie
-
     fun getSelectedMovie(movieId: Int) {
         viewModelScope.launch {
             repository.getSelectedMovie(movieId = movieId).collect {
@@ -151,52 +81,80 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
         }
     }
 
-    private fun addMovie() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val newMovie = MovieModel(
-                title = title.value,
-                genre = genre.value,
-                year = year.value,
-                description = description.value,
-                score = score.value
-            )
-            repository.addMovie(movie = newMovie)
+    fun searchDatabase(searchQuery: String) {
+        _searchedMovies.value = RequestState.Loading
+        try {
+            viewModelScope.launch {
+                // Finds any values that have searchQuery in any position (SQL)
+                repository.searchDatabase(searchQuery = "%$searchQuery%")
+                    .collect { searchedTasks ->
+                        _searchedMovies.value = RequestState.Success(searchedTasks)
+                    }
+            }
+        } catch (e: Exception) {
+            _searchedMovies.value = RequestState.Error(e)
         }
-        searchAppBarState.value = SearchAppBarState.CLOSED
+        searchAppBarState = SearchAppBarState.TRIGGERED
     }
 
-    private fun updateMovie() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val modifyMovie = MovieModel(
-                id = id.value,
-                title = title.value,
-                genre = genre.value,
-                year = year.value,
-                description = description.value,
-                score = score.value
-            )
-            repository.updateMovie(movie = modifyMovie)
-        }
+    // Event: updates value of searchAppBarState
+    fun updateSearchBarState(newSearchAppBarState: SearchAppBarState) {
+        searchAppBarState = newSearchAppBarState
     }
 
-    private fun deleteMovie() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val movie = MovieModel(
-                id = id.value,
-                title = title.value,
-                description = description.value,
-                genre = genre.value,
-                year = year.value,
-                score = score.value
-            )
-            repository.deleteMovie(movie = movie)
+    // Event: updates value of searchTextState
+    fun onSearchTextChanged(newText: String) {
+        searchTextState = newText
+    }
+
+    // Events for fields:
+    fun onTitleChange(newTitle: String) {
+        // limit characters
+        if (newTitle.length < 40) {
+            title = newTitle
         }
     }
 
-    private fun deleteAllMovies() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteAllMovies()
+    fun onChangeAction(newAction: Action) {
+        action = newAction
+    }
+
+    fun onDescriptionChange(newDescription: String) {
+        description = newDescription
+    }
+
+    fun onGenreSelected(newGenre: Genre) {
+        genre = newGenre
+    }
+
+    fun onYearChange(newYear: String) {
+        year = newYear
+    }
+
+    fun onScoreChange(newScore: Int) {
+        score = newScore
+    }
+
+    fun updateMovieFields(selectedMovie: MovieModel?) {
+        if (selectedMovie != null) {
+            id = selectedMovie.id
+            title = selectedMovie.title
+            genre = selectedMovie.genre
+            year = selectedMovie.year
+            description = selectedMovie.description
+            score = selectedMovie.score
+        } else {
+            id = 0
+            title = ""
+            description = ""
+            genre =Genre.ACTION
+            year = ""
+            score = 0
         }
+    }
+
+    fun validateFields(): Boolean {
+        return title.isNotEmpty() && year.isNotEmpty() && description.isNotEmpty()
     }
 
     fun handleDatabaseActions(action: Action) {
@@ -209,7 +167,55 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
             else -> {
             }
         }
-        this.action.value = Action.NO_ACTION
+        this.action = Action.NO_ACTION
+    }
+
+    private fun addMovie() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newMovie = MovieModel(
+                title = title,
+                genre = genre,
+                year = year,
+                description = description,
+                score = score
+            )
+            repository.addMovie(movie = newMovie)
+        }
+        searchAppBarState = SearchAppBarState.CLOSED
+    }
+
+    private fun updateMovie() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val modifyMovie = MovieModel(
+                id = id,
+                title = title,
+                genre = genre,
+                year = year,
+                description = description,
+                score = score
+            )
+            repository.updateMovie(movie = modifyMovie)
+        }
+    }
+
+    private fun deleteMovie() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val movie = MovieModel(
+                id = id,
+                title = title,
+                description = description,
+                genre = genre,
+                year = year,
+                score = score
+            )
+            repository.deleteMovie(movie = movie)
+        }
+    }
+
+    private fun deleteAllMovies() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteAllMovies()
+        }
     }
 
 }

@@ -41,8 +41,8 @@ fun MainListScreen(
     // 2. sharedViewModel.searchAppBarState is of type MutableState<SearchAppBarState>
     // Which is an observable state holder. Since it's observable, it will tell compose
     // whenever it's updated so compose can recompose any composables that read it
-    val searchAppBarState: SearchAppBarState by movieViewModel.searchAppBarState
-    val searchTextState: String = movieViewModel.searchTextState.value
+    val searchAppBarState: SearchAppBarState = movieViewModel.searchAppBarState
+    val searchTextState: String = movieViewModel.searchTextState
     val searchedMovies by movieViewModel.searchedMovies.collectAsState()
     val scaffoldState: ScaffoldState = rememberScaffoldState()
 
@@ -50,10 +50,10 @@ fun MainListScreen(
     DisplaySnackBar(
         scaffoldState = scaffoldState,
         handleDatabaseActions = { movieViewModel.handleDatabaseActions(action) },
-        taskTitle = movieViewModel.title.value,
+        taskTitle = movieViewModel.title,
         action = action,
         onUndoClicked = {
-            movieViewModel.action.value = it
+            movieViewModel.onChangeAction(it)
         },
     )
     Scaffold(
@@ -62,9 +62,7 @@ fun MainListScreen(
             AppMainToolbar(
                 movieViewModel = movieViewModel,
                 searchAppBarState = searchAppBarState,
-                searchTextState = searchTextState,
-                onSearchClicked = movieViewModel::onSearchClicked,
-                onTextChange = movieViewModel::onSearchTextChanged
+                searchTextState = searchTextState
             )
         },
         floatingActionButton = {

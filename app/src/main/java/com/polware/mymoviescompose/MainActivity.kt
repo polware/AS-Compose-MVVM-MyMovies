@@ -41,8 +41,8 @@ class MainActivity : ComponentActivity() {
                         AppNavigation(
                             navController = navController,
                             movieViewModel = movieViewModel,
-                            changeAction = movieViewModel::changeAction,
-                            action = movieViewModel.action.value
+                            changeAction = movieViewModel::onChangeAction,
+                            action = movieViewModel.action
                         )
                     }
                 }

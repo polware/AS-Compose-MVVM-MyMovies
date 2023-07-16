@@ -47,29 +47,28 @@ import com.polware.mymoviescompose.util.SearchAppBarState
 fun AppMainToolbar(
     movieViewModel: MovieViewModel,
     searchAppBarState: SearchAppBarState,
-    searchTextState: String,
-    onSearchClicked: (SearchAppBarState) -> Unit,
-    onTextChange: (String) -> Unit
-
+    searchTextState: String
 ) {
     when (searchAppBarState) {
         SearchAppBarState.CLOSED ->
             DefaultAppBar(
                 onSearchClicked = {
-                    movieViewModel.searchAppBarState.value = SearchAppBarState.OPENED
-                    onSearchClicked(SearchAppBarState.OPENED)
+                    movieViewModel.updateSearchBarState(SearchAppBarState.OPENED)
                 },
                 onDeleteAllConfirmed = {
-                    movieViewModel.action.value = Action.DELETE_ALL
+                    movieViewModel.onChangeAction(Action.DELETE_ALL)
                 }
             )
         else ->
             SearchAppBar(
                 text = searchTextState,
-                onTextChange = { newText -> onTextChange(newText) },
+                onTextChange = {
+                    newText ->
+                    movieViewModel.onSearchTextChanged(newText)
+                               },
                 onCloseClicked = {
-                    onSearchClicked(SearchAppBarState.CLOSED)
-                    onTextChange("")
+                    movieViewModel.updateSearchBarState(SearchAppBarState.CLOSED)
+                    movieViewModel.onSearchTextChanged("")
                 },
                 onSearchClicked = {
                     movieViewModel.searchDatabase(searchQuery = it)
