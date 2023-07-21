@@ -8,6 +8,7 @@ import com.polware.mymoviescompose.util.Constants.DATABASE_TABLE
 data class MovieModel(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val image: String,
     val title: String,
     val genre: Genre,
     val year: String,

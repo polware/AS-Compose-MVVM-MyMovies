@@ -1,5 +1,6 @@
 package com.polware.mymoviescompose.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,11 +23,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.polware.mymoviescompose.data.model.Genre
-import com.polware.mymoviescompose.ui.theme.LARGE_PADDING
+import com.polware.mymoviescompose.ui.theme.MEDIUM_PADDING
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MovieDetails(
+    image: String,
+    onImageChange: (String) -> Unit,
     title: String,
     onTitleChange: (String) -> Unit,
     description: String,
@@ -41,14 +44,20 @@ fun MovieDetails(
     val pattern = remember { Regex("^\\d+\$") }
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    Log.d("MovieImage", "ImageDB: $image")
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
-            .padding(all = LARGE_PADDING),
+            .padding(all = MEDIUM_PADDING),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(15.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+        ImageLoader(image = image) {
+            uri ->
+            onImageChange(uri.toString())
+        }
+        Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             modifier = Modifier.width(280.dp),
             value = title,
@@ -58,16 +67,17 @@ fun MovieDetails(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
-        Spacer(modifier = Modifier.height(15.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         GenreDropDown(
             genre = genre,
             onGenreSelected = onGenreSelected
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         OutlinedTextField(
             modifier = Modifier.width(280.dp),
             value = year,
-            onValueChange = { newYear ->
+            onValueChange = {
+                    newYear ->
                 if (newYear.isEmpty() || newYear.matches(pattern)) {
                     onYearChange(newYear)
                 }
@@ -77,7 +87,7 @@ fun MovieDetails(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-        Spacer(modifier = Modifier.height(15.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             modifier = Modifier
                 .width(280.dp)
@@ -93,13 +103,14 @@ fun MovieDetails(
                 keyboardController?.hide()
             }
         )
-        Spacer(modifier = Modifier.height(15.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = "Score",
             fontWeight = FontWeight.SemiBold
         )
         // Rating bar
-        MovieRatingBar(score = score) { newScore ->
+        MovieRatingBar(score = score) {
+            newScore ->
             onScoreChange(newScore)
         }
     }

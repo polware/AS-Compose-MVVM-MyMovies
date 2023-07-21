@@ -69,14 +69,16 @@ fun AppNavigation(
                     type = NavType.StringType
                 })
         ) {
-            entry -> // Look up "action" in NavBackStackEntry's arguments
-            val actionArg = entry.arguments?.getString(MAIN_ARGUMENT_KEY).toAction()
+            navBackStackEntry ->
+            // Look up "action" in NavBackStackEntry's arguments
+            val actionArgument =     navBackStackEntry.arguments?.getString(MAIN_ARGUMENT_KEY).toAction()
+            // Define default value for user actions
             var myAction by rememberSaveable { mutableStateOf(Action.NO_ACTION) }
 
             // Whenever myAction changes the block of code inside is triggered
             LaunchedEffect(key1 = myAction) {
-                if (actionArg != myAction) {
-                    myAction = actionArg
+                if (actionArgument != myAction) {
+                    myAction = actionArgument
                     changeAction(myAction)
                 }
             }

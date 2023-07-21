@@ -44,6 +44,8 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
     // States
     var id by mutableStateOf(0)
         private set
+    var image by mutableStateOf("")
+        private set
     var title by mutableStateOf("")
         private set
     var description by mutableStateOf("")
@@ -107,6 +109,10 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
         searchTextState = newText
     }
 
+    fun onImageChange(newImage: String) {
+        image = newImage
+    }
+
     // Events for fields:
     fun onTitleChange(newTitle: String) {
         // limit characters
@@ -138,6 +144,7 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
     fun updateMovieFields(selectedMovie: MovieModel?) {
         if (selectedMovie != null) {
             id = selectedMovie.id
+            image = selectedMovie.image
             title = selectedMovie.title
             genre = selectedMovie.genre
             year = selectedMovie.year
@@ -145,6 +152,7 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
             score = selectedMovie.score
         } else {
             id = 0
+            image = ""
             title = ""
             description = ""
             genre =Genre.ACTION
@@ -154,7 +162,7 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
     }
 
     fun validateFields(): Boolean {
-        return title.isNotEmpty() && year.isNotEmpty() && description.isNotEmpty()
+        return image.isNotEmpty() && title.isNotEmpty() && year.isNotEmpty() && description.isNotEmpty()
     }
 
     fun handleDatabaseActions(action: Action) {
@@ -173,6 +181,7 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
     private fun addMovie() {
         viewModelScope.launch(Dispatchers.IO) {
             val newMovie = MovieModel(
+                image = image,
                 title = title,
                 genre = genre,
                 year = year,
@@ -188,6 +197,7 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
         viewModelScope.launch(Dispatchers.IO) {
             val modifyMovie = MovieModel(
                 id = id,
+                image = image,
                 title = title,
                 genre = genre,
                 year = year,
@@ -202,6 +212,7 @@ class MovieViewModel @Inject constructor(private val repository: MovieRepository
         viewModelScope.launch(Dispatchers.IO) {
             val movie = MovieModel(
                 id = id,
+                image = image,
                 title = title,
                 description = description,
                 genre = genre,

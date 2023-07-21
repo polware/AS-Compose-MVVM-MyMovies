@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import com.polware.mymoviescompose.R
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.polware.mymoviescompose.components.MovieListContent
 import com.polware.mymoviescompose.components.AppMainToolbar
@@ -83,7 +84,9 @@ fun NewMovieFab(
     navigateToMovieScreen: (movieId: Int) -> Unit
 ) {
     FloatingActionButton(
-        onClick = { navigateToMovieScreen(-1) },
+        onClick = {
+            navigateToMovieScreen(-1)
+            },
         backgroundColor = MaterialTheme.colors.fabBackgroundColor
     ) {
         Icon(

@@ -1,11 +1,13 @@
 package com.polware.mymoviescompose.components
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
@@ -18,9 +20,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.polware.mymoviescompose.data.model.Genre
 import com.polware.mymoviescompose.data.model.MovieModel
-import com.polware.mymoviescompose.ui.theme.LARGE_PADDING
 import com.polware.mymoviescompose.ui.theme.MOVIE_ITEM_ELEVATION
 import com.polware.mymoviescompose.ui.theme.taskItemBackgroundColor
 import com.polware.mymoviescompose.ui.theme.taskItemTextColor
@@ -92,6 +95,8 @@ fun MovieItem(
     movieModel: MovieModel,
     navigateToMovieScreen: (movieId: Int) -> Unit
 ) {
+    val uriImage = Uri.parse(movieModel.image)
+
     Surface(
         modifier = Modifier
             .fillMaxWidth(),
@@ -102,38 +107,52 @@ fun MovieItem(
             navigateToMovieScreen(movieModel.id)
         }
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .padding(all = LARGE_PADDING)
+                .padding(all = 10.dp)
                 .fillMaxWidth()
-        )
-        {
-            Row {
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(all = 3.dp)
+                    .weight(3.5f)
+            ) {
+                AsyncImage(
+                    model = uriImage,
+                    modifier = Modifier
+                        .size(160.dp),
+                    contentDescription = "Movie image",
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .padding(all = 4.dp)
+                    .weight(6.5f)
+            ) {
                 Text(
-                    modifier = Modifier.weight(8f),
+                    modifier = Modifier.fillMaxWidth(),
                     text = movieModel.title,
                     color = MaterialTheme.colors.taskItemTextColor,
                     style = MaterialTheme.typography.h4,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1
                 )
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = movieModel.description,
+                    color = MaterialTheme.colors.taskItemTextColor,
+                    style = MaterialTheme.typography.subtitle1,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.TopEnd
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.TopStart
                 ) {
                     MovieRating(score = movieModel.score)
                 }
             }
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = movieModel.description,
-                color = MaterialTheme.colors.taskItemTextColor,
-                style = MaterialTheme.typography.subtitle1,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }
@@ -145,6 +164,7 @@ fun MovieItemPreview() {
     MovieItem(
         movieModel = MovieModel(
             id = 0,
+            image = "",
             title = "Title",
             genre = Genre.ANIMATION,
             year = "2010",

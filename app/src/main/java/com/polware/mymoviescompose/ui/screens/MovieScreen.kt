@@ -3,6 +3,7 @@ package com.polware.mymoviescompose.ui.screens
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -20,10 +21,15 @@ fun MovieScreen(
     navigateToMainListScreen: (Action) -> Unit
 ) {
     val context = LocalContext.current
+    // Function that handle the event of Back press button (navigate to TaskListScreen with No Action)
+    BackHandler {
+        navigateToMainListScreen(Action.NO_ACTION)
+    }
     Scaffold(
         topBar = {
             MovieAppBar(
-                navigateToMainListScreen = { action ->
+                navigateToMainListScreen = {
+                    action ->
                     if (action == Action.NO_ACTION) {
                         navigateToMainListScreen(action)
                     } else {
@@ -39,6 +45,8 @@ fun MovieScreen(
         }
     ) {
         MovieDetails(
+            image = movieViewModel.image,
+            onImageChange = movieViewModel::onImageChange,
             title = movieViewModel.title,
             onTitleChange = movieViewModel::onTitleChange,
             description = movieViewModel.description,

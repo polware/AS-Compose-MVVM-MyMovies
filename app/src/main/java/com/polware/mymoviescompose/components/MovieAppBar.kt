@@ -198,6 +198,7 @@ fun PreviewExistingMovieAppBar() {
         navigateToMainListScreen = {},
         selectedMovie = MovieModel(
             id = 0,
+            image = "",
             title = "Predator",
             genre = Genre.ACTION,
             year = "1989",
